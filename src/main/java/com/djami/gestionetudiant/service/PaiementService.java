@@ -11,9 +11,10 @@ public interface PaiementService {
 
     Paiement creerPaiement(Paiement paiement, Long etudiantId);
 
-    // ✅ CORRECTION : Ajouter la méthode findAll() manquante
-    List<Paiement> findAll();
+    // ✅ CORRECTION : Ajouter cette méthode
+    Paiement creerPaiementSimple(Paiement paiement);
 
+    List<Paiement> findAll();
     List<Paiement> getPaiementsParEtudiant(Long etudiantId);
     Paiement findByNumeroRecu(String numeroRecu);
     Double calculerTotalPaiements(Long etudiantId);

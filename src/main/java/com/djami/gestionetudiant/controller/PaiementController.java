@@ -16,22 +16,22 @@ public class PaiementController {
     @Autowired
     private PaiementService paiementService;
 
-    // ✅ ENDPOINT POST SIMPLE MANQUANT - CORRECTION PRINCIPALE
+    // ✅ CORRECTION : Endpoint POST simplifié
     @PostMapping
     public ResponseEntity<Paiement> creerPaiementSimple(@RequestBody Paiement paiement) {
         try {
-            // Vérifier si l'étudiant est fourni dans le body
+            System.out.println("📥 DONNÉES REÇUES: " + paiement);
+
+            // Validation
             if (paiement.getEtudiant() == null || paiement.getEtudiant().getId() == null) {
                 return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
             }
 
-            // Utiliser l'étudiant ID du body
-            Paiement nouveauPaiement = paiementService.creerPaiement(
-                    paiement,
-                    paiement.getEtudiant().getId()
-            );
+            // ✅ CORRECTION : Sauvegarde directe sans conflit d'ID
+            Paiement nouveauPaiement = paiementService.creerPaiementSimple(paiement);
             return new ResponseEntity<>(nouveauPaiement, HttpStatus.CREATED);
         } catch (RuntimeException e) {
+            System.out.println("❌ ERREUR: " + e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }

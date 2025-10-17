@@ -22,6 +22,52 @@ public class PaiementServiceImpl implements PaiementService {
     @Autowired
     private EtudiantRepository etudiantRepository;
 
+    // ✅ CORRECTION : Implémenter la nouvelle méthode
+    @Override
+    public Paiement creerPaiementSimple(Paiement paiement) {
+        try {
+            System.out.println("💾 Création paiement simple:");
+            System.out.println("  - Montant: " + paiement.getMontant());
+            System.out.println("  - Motif: " + paiement.getMotif());
+            System.out.println("  - Etudiant: " + (paiement.getEtudiant() != null ? paiement.getEtudiant().getId() : "null"));
+            System.out.println("  - NumeroRecu: " + paiement.getNumeroRecu());
+            System.out.println("  - DatePaiement: " + paiement.getDatePaiement());
+
+            // Vérifier que l'étudiant existe
+            if (paiement.getEtudiant() != null && paiement.getEtudiant().getId() != null) {
+                Optional<Etudiant> etudiantOpt = etudiantRepository.findById(paiement.getEtudiant().getId());
+                if (etudiantOpt.isEmpty()) {
+                    throw new RuntimeException("Étudiant non trouvé avec l'ID: " + paiement.getEtudiant().getId());
+                }
+                // S'assurer d'utiliser l'étudiant chargé depuis la base
+                paiement.setEtudiant(etudiantOpt.get());
+            }
+
+            // Générer un numéro de reçu si manquant
+            if (paiement.getNumeroRecu() == null || paiement.getNumeroRecu().isEmpty()) {
+                String numeroRecu;
+                do {
+                    numeroRecu = genererNumeroRecu();
+                } while (reçuExisteDeja(numeroRecu));
+                paiement.setNumeroRecu(numeroRecu);
+            }
+
+            // Définir la date si manquante
+            if (paiement.getDatePaiement() == null) {
+                paiement.setDatePaiement(LocalDateTime.now());
+            }
+
+            Paiement savedPaiement = paiementRepository.save(paiement);
+            System.out.println("✅ Paiement créé avec ID: " + savedPaiement.getId());
+
+            return savedPaiement;
+
+        } catch (Exception e) {
+            System.out.println("❌ Erreur création paiement simple: " + e.getMessage());
+            throw new RuntimeException("Erreur création paiement: " + e.getMessage());
+        }
+    }
+
     @Override
     public Paiement creerPaiementAvecEtudiantId(Double montant, String motif, Long etudiantId,
                                                 String numeroRecu, LocalDateTime datePaiement) {
@@ -88,7 +134,6 @@ public class PaiementServiceImpl implements PaiementService {
         return paiementRepository.save(paiement);
     }
 
-    // ✅ CORRECTION : Implémenter findAll()
     @Override
     public List<Paiement> findAll() {
         return paiementRepository.findAll();
