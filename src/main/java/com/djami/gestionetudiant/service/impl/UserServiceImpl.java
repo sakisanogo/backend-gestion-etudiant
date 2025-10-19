@@ -29,17 +29,36 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(String username, String password, String roleName) {
-        if (userRepository.existsByUsername(username)) {
-            throw new RuntimeException("L'utilisateur existe déjà: " + username);
+        // Validation
+        if (username == null || username.trim().isEmpty()) {
+            throw new RuntimeException("Le nom d'utilisateur est requis");
+        }
+        if (password == null || password.trim().isEmpty()) {
+            throw new RuntimeException("Le mot de passe est requis");
+        }
+        if (password.length() < 6) {
+            throw new RuntimeException("Le mot de passe doit contenir au moins 6 caractères");
         }
 
-        Role role = roleRepository.findByName(roleName)
-                .orElseThrow(() -> new RuntimeException("Rôle non trouvé: " + roleName));
+        // Vérifier si l'utilisateur existe déjà
+        if (userRepository.existsByUsername(username)) {
+            throw new RuntimeException("Ce nom d'utilisateur est déjà utilisé");
+        }
 
+        // Trouver ou créer le rôle
+        Role role = roleRepository.findByName(roleName)
+                .orElseGet(() -> {
+                    // Créer le rôle s'il n'existe pas
+                    Role newRole = new Role(roleName);
+                    return roleRepository.save(newRole);
+                });
+
+        // Créer l'utilisateur
         User user = new User();
-        user.setUsername(username);
+        user.setUsername(username.trim());
         user.setPassword(passwordEncoder.encode(password));
         user.setRoles(Collections.singletonList(role));
+        user.setEnabled(true);
 
         return userRepository.save(user);
     }
