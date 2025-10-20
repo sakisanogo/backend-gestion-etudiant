@@ -17,4 +17,8 @@ public interface EtudiantRepository extends JpaRepository<Etudiant, Long> {
     Optional<Etudiant> findByIdWithPaiements(@Param("id") Long id);
 
     boolean existsByMatricule(String matricule);
+
+    // Pour ma barre de recherche
+
+
 }

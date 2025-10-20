@@ -14,4 +14,8 @@ public interface EtudiantService {
     Optional<Etudiant> findByIdWithPaiements(Long id);
     Optional<Etudiant> findByMatricule(String matricule);
     boolean existsByMatricule(String matricule);
+
+    // pour la barre de recherche
+
+
 }
